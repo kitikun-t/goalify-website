@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goalify - ธ.ก.ส.สาขาท่าชัย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><rect width="100%" height="100%" fill="url(%23a)"/><g fill="%23ffffff" fill-opacity="0.03"><circle cx="200" cy="200" r="100"/><circle cx="800" cy="300" r="150"/><circle cx="400" cy="700" r="120"/><circle cx="900" cy="800" r="80"/><polygon points="100,500 200,400 300,500 200,600"/><polygon points="600,100 750,200 600,300 450,200"/></g></svg>');
+            background-attachment: fixed;
+            background-size: cover, 100% 100%;
+            background-blend-mode: overlay;
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .input-focus {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .input-focus:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-gradient:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn-gradient:hover:before {
+            left: 100%;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.5);
+        }
+        .form-container {
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .icon-gradient {
+            background: linear-gradient(135deg, #10b981, #047857);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .mobile-optimized {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Mobile specific styles */
+        @media (max-width: 640px) {
+            .glass-effect {
+                backdrop-filter: blur(15px);
+            }
+            .input-focus:focus {
+                transform: none;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+            .btn-gradient:hover {
+                transform: none;
+            }
+            body {
+                background-attachment: scroll;
+            }
+        }
+
+        /* Improved select styling for mobile */
+        select option {
+            background: #1f2937;
+            color: white;
+            padding: 10px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Table styles */
+        .data-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .data-table th,
+        .data-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 8px;
+        }
+        .data-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Animation for sections */
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                max-height: 1000px;
+                transform: translateY(0);
+            }
+        }
+
+        /* Search input styles */
+        .search-input {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            width: 100%;
+            font-size: 14px;
+        }
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Dropdown styles */
+        .dropdown-container {
+            position: relative;
+        }
+        .dropdown-list {
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(31, 41, 55, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .dropdown-item {
+            padding: 10px 12px;
+            color: white;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Tab styles */
+        .tab-button {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8 mobile-optimized">
+    <div class="w-full max-w-7xl mx-auto">
+        <div class="form-container">
+            <div class="text-center mb-8">
+                <div class="glass-effect rounded-3xl p-8 mb-6 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10">
+                        <svg class="w-full h-full" viewBox="0 0 400 200">
+                            <defs>
+                                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grid)"/>
+                        </svg>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-24 h-24 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6
+transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                            <i class="fas fa-rocket text-4xl text-white"></i>
+                        </div>
+                        <h1 class="text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">
+                            <span class="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                                Goalify
+                            </span>
+                        </h1>
+                        <div class="flex items-center justify-center space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                            <p class="text-white/90 text-lg font-medium">ธ.ก.ส.สาขาท่าชัย</p>
+                            <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-75"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-effect rounded-3xl p-3 mb-8 shadow-2xl">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <button onclick="showTab('form')" class="tab-button active rounded-2xl group relative
+overflow-hidden" id="formTab">
+                        <div class="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col items-center py-4">
+                            <i class="fas fa-plus text-2xl mb-2 text-green-400"></i>
+                            <span class="text-sm font-medium">บันทึกข้อมูล</span>
+                        </div>
+                    </button>
+                    <button onclick="showTab('dashboard')" class="tab-button rounded-2xl group relative overflow-hidden" id="dashboardTab">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col items-center py-4">
+                            <i class="fas fa-chart-bar text-2xl mb-2 text-blue-400"></i>
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </div>
+                    </button>
+                    <button onclick="showTab('search')" class="tab-button rounded-2xl group relative overflow-hidden" id="searchTab">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col items-center py-4">
+                            <i class="fas fa-search text-2xl mb-2 text-purple-400"></i>
+                            <span class="text-sm font-medium">ค้นหาข้อมูล</span>
+                        </div>
+                    </button>
+                    <button onclick="showTab('alldata')" class="tab-button rounded-2xl group relative overflow-hidden" id="alldataTab">
+                        <div class="absolute inset-0 bg-gradient-to-r from-pink-400 to-red-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col items-center py-4">
+                            <i class="fas fa-list text-2xl mb-2 text-pink-400"></i>
+                            <span class="text-sm font-medium">ข้อมูลทั้งหมด</span>
+                        </div>
+                    </button>
+                    <button onclick="showTab('analytics')" class="tab-button rounded-2xl group relative overflow-hidden" id="analyticsTab">
+                        <div class="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col items-center py-4">
+                            <i class="fas fa-chart-line text-2xl mb-2 text-yellow-400"></i>
+                            <span class="text-sm font-medium">วิเคราะห์เชิงลึก</span>
+                        </div>
+                    </button>
+                    <button onclick="showTab('admin')" class="tab-button rounded-2xl group relative overflow-hidden" id="adminTab">
+                        <div class="absolute inset-0 bg-gradient-to-r from-gray-400 to-gray-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col items-center py-4">
+                            <i class="fas fa-cog text-2xl mb-2 text-gray-400"></i>
+                            <span class="text-sm font-medium">จัดการข้อมูล</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div id="formContent" class="tab-content">
+                <div class="glass-effect rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-500/10 rounded-full -translate-y-16 translate-x-16"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-400/10 to-blue-500/10 rounded-full translate-y-12 -translate-x-12"></div>
+                    <div class="relative z-10">
+                        <div class="text-center mb-8">
+                            <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">บันทึกข้อมูลการขาย</h2>
+                            <p class="text-white/70">กรอกข้อมูลการขายเพื่อบันทึกในระบบ</p>
+                        </div>
+                        <form id="dataForm" class="space-y-6">
+                            <div class="relative dropdown-container">
+                                <label for="employeeName" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-user-tie mr-2 sm:mr-3 text-emerald-200"></i>ชื่อพนักงาน <span class="text-orange-300">*</span>
+                                </label>
+                                <input type="text" id="employeeName" name="employeeName" required
+                                       class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                       placeholder="ค้นหาและเลือกชื่อพนักงาน"
+                                       autocomplete="off">
+                                <div id="employeeDropdown" class="dropdown-list">
+                                </div>
+                            </div>
+                            <div class="relative dropdown-container">
+                                <label for="productName" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-cube mr-2 sm:mr-3 text-emerald-200"></i>ผลิตภัณฑ์ <span class="text-orange-300">*</span>
+                                </label>
+                                <input type="text" id="productName" name="productName" required
+                                       class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                       placeholder="ค้นหาและเลือกผลิตภัณฑ์"
+                                       autocomplete="off">
+                                <div id="productDropdown" class="dropdown-list">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="quantity" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-boxes mr-2 sm:mr-3 text-emerald-200"></i>จำนวน <span class="text-orange-300">*</span>
+                                </label>
+                                <input type="number" id="quantity" name="quantity" required
+                                       class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                       placeholder="กรอกจำนวน (เช่น 1, 2, 3)">
+                            </div>
+                            <div>
+                                <label for="fullValue" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-sack-dollar mr-2 sm:mr-3 text-emerald-200"></i>มูลค่าเต็ม <span class="text-orange-300">*</span>
+                                </label>
+                                <input type="number" step="0.01" id="fullValue" name="fullValue" required
+                                       class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                       placeholder="กรอกมูลค่าเต็ม">
+                            </div>
+                            <div>
+                                <label for="netValue" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-calculator mr-2 sm:mr-3 text-emerald-200"></i>มูลค่าสุทธิ
+                                </label>
+                                <input type="text" id="netValue" name="netValue" readonly
+                                       class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                       placeholder="คำนวณอัตโนมัติ"
+                                       style="background: rgba(255, 255, 255, 0.15);">
+                            </div>
+                            <div>
+                                <label for="note" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-clipboard mr-2 sm:mr-3 text-emerald-200"></i>หมายเหตุ
+                                </label>
+                                <textarea id="note" name="note" rows="3"
+                                          class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                          placeholder="เพิ่มหมายเหตุ (ถ้ามี)"></textarea>
+                            </div>
+                            <div class="relative dropdown-container">
+                                <label for="recorderName" class="block text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4">
+                                    <i class="fas fa-pen-nib mr-2 sm:mr-3 text-emerald-200"></i>ผู้บันทึก <span class="text-orange-300">*</span>
+                                </label>
+                                <input type="text" id="recorderName" name="recorderName" required
+                                       class="search-input w-full px-4 sm:px-5 py-4 sm:py-5 rounded-xl sm:rounded-2xl text-sm sm:text-base input-focus"
+                                       placeholder="ค้นหาและเลือกชื่อผู้บันทึก"
+                                       autocomplete="off">
+                                <div id="recorderDropdown" class="dropdown-list">
+                                    </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+                                <button type="submit" id="submitBtn"
+                                        class="flex-1 btn-gradient text-white font-bold py-4 sm:py-5 px-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 transform hover:-translate-y-1">
+                                    <i class="fas fa-save mr-2"></i> บันทึกข้อมูล
+                                </button>
+                                <button type="button" id="resetBtn"
+                                        class="flex-1 bg-white/20 text-white font-bold py-4 sm:py-5 px-6 rounded-2xl shadow-xl hover:bg-white/30 transition duration-300">
+                                    <i class="fas fa-undo mr-2"></i> ล้างข้อมูล
+                                </button>
+                            </div>
+                        </form>
+                        <div id="statusMessage" class="mt-6 text-center text-sm font-semibold slide-down" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="dashboardContent" class="tab-content hidden slide-down">
+                <div class="glass-effect rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">สรุปผล Dashboard</h2>
+                        <p class="text-white/70">แสดงข้อมูลการขายเชิงสรุป</p>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            <div class="relative dropdown-container">
+                                <label for="dashboardEmployee" class="block text-sm font-semibold text-white mb-2">พนักงาน</label>
+                                <input type="text" id="dashboardEmployee" name="dashboardEmployee" class="search-input" placeholder="เลือกพนักงาน">
+                                <div id="dashboardEmployeeDropdown" class="dropdown-list"></div>
+                            </div>
+                            <div class="relative dropdown-container">
+                                <label for="dashboardProduct" class="block text-sm font-semibold text-white mb-2">ผลิตภัณฑ์</label>
+                                <input type="text" id="dashboardProduct" name="dashboardProduct" class="search-input" placeholder="เลือกผลิตภัณฑ์">
+                                <div id="dashboardProductDropdown" class="dropdown-list"></div>
+                            </div>
+                            <div>
+                                <label for="dashboardStartDate" class="block text-sm font-semibold text-white mb-2">วันที่เริ่มต้น</label>
+                                <input type="date" id="dashboardStartDate" name="dashboardStartDate" class="search-input">
+                            </div>
+                            <div>
+                                <label for="dashboardEndDate" class="block text-sm font-semibold text-white mb-2">วันที่สิ้นสุด</label>
+                                <input type="date" id="dashboardEndDate" name="dashboardEndDate" class="search-input">
+                            </div>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl p-6 mb-6">
+                            <h3 class="text-xl font-bold text-white mb-4">ยอดขายรวมตามพนักงาน</h3>
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl p-6 mb-6">
+                            <h3 class="text-xl font-bold text-white mb-4">ยอดขายรวมตามผลิตภัณฑ์</h3>
+                            <div class="chart-container">
+                                <canvas id="productChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="glass-effect p-6 rounded-2xl text-center">
+                                <div class="text-2xl font-bold text-white mb-2" id="totalSalesCount">0</div>
+                                <div class="text-sm text-white/70">จำนวนรายการขายทั้งหมด</div>
+                            </div>
+                            <div class="glass-effect p-6 rounded-2xl text-center">
+                                <div class="text-2xl font-bold text-white mb-2" id="totalQuantity">0</div>
+                                <div class="text-sm text-white/70">จำนวนสินค้าที่ขายได้ทั้งหมด</div>
+                            </div>
+                            <div class="glass-effect p-6 rounded-2xl text-center">
+                                <div class="text-2xl font-bold text-white mb-2" id="totalNetValue">฿0.00</div>
+                                <div class="text-sm text-white/70">มูลค่าสุทธิรวมทั้งหมด</div>
+                            </div>
+                            <div class="glass-effect p-6 rounded-2xl text-center">
+                                <div class="text-2xl font-bold text-white mb-2" id="averageSales">฿0.00</div>
+                                <div class="text-sm text-white/70">มูลค่าเฉลี่ยต่อรายการ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="searchContent" class="tab-content hidden slide-down">
+                <div class="glass-effect rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">ค้นหาข้อมูล</h2>
+                        <p class="text-white/70">ค้นหาข้อมูลตามเงื่อนไขที่ต้องการ</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="relative dropdown-container">
+                            <label for="searchEmployeeName" class="block text-sm font-semibold text-white mb-2">ชื่อพนักงาน</label>
+                            <input type="text" id="searchEmployeeName" name="searchEmployeeName" class="search-input" placeholder="เลือกชื่อพนักงาน">
+                            <div id="searchEmployeeDropdown" class="dropdown-list"></div>
+                        </div>
+                        <div class="relative dropdown-container">
+                            <label for="searchProductName" class="block text-sm font-semibold text-white mb-2">ผลิตภัณฑ์</label>
+                            <input type="text" id="searchProductName" name="searchProductName" class="search-input" placeholder="เลือกผลิตภัณฑ์">
+                            <div id="searchProductDropdown" class="dropdown-list"></div>
+                        </div>
+                        <div>
+                            <label for="searchDate" class="block text-sm font-semibold text-white mb-2">วันที่บันทึก</label>
+                            <input type="date" id="searchDate" name="searchDate" class="search-input" placeholder="เลือกวันที่">
+                        </div>
+                    </div>
+                    <div class="flex justify-center mb-8">
+                        <button onclick="searchData()" class="btn-gradient text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+                            <i class="fas fa-search mr-2"></i> ค้นหา
+                        </button>
+                    </div>
+                    <div id="searchResultsContainer" class="mt-8 overflow-x-auto slide-down" style="display: none;">
+                        <h3 class="text-xl font-bold text-white mb-4">ผลการค้นหา</h3>
+                        <table class="data-table w-full text-sm text-left text-white/80 rounded-xl overflow-hidden shadow-lg">
+                            <thead class="bg-white/10 text-white/90 uppercase text-xs">
+                                <tr>
+                                    <th class="py-3 px-4 rounded-tl-xl">วันที่บันทึก</th>
+                                    <th class="py-3 px-4">ชื่อพนักงาน</th>
+                                    <th class="py-3 px-4">ผลิตภัณฑ์</th>
+                                    <th class="py-3 px-4">จำนวน</th>
+                                    <th class="py-3 px-4">มูลค่าสุทธิ</th>
+                                    <th class="py-3 px-4">หมายเหตุ</th>
+                                    <th class="py-3 px-4 rounded-tr-xl">ผู้บันทึก</th>
+                                </tr>
+                            </thead>
+                            <tbody id="searchResultsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="alldataContent" class="tab-content hidden slide-down">
+                <div class="glass-effect rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">ข้อมูลทั้งหมด</h2>
+                        <p class="text-white/70">แสดงรายการข้อมูลการขายทั้งหมดที่บันทึกไว้</p>
+                    </div>
+                    <div class="flex justify-end mb-4">
+                        <button onclick="exportToExcel()" class="btn-gradient text-white font-bold py-2 px-4 rounded-xl shadow-lg">
+                            <i class="fas fa-file-excel mr-2"></i> Export to Excel
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table w-full text-sm text-left text-white/80 rounded-xl overflow-hidden shadow-lg">
+                            <thead class="bg-white/10 text-white/90 uppercase text-xs">
+                                <tr>
+                                    <th class="py-3 px-4 rounded-tl-xl">วันที่บันทึก</th>
+                                    <th class="py-3 px-4">ชื่อพนักงาน</th>
+                                    <th class="py-3 px-4">ผลิตภัณฑ์</th>
+                                    <th class="py-3 px-4">จำนวน</th>
+                                    <th class="py-3 px-4">มูลค่าสุทธิ</th>
+                                    <th class="py-3 px-4">หมายเหตุ</th>
+                                    <th class="py-3 px-4 rounded-tr-xl">ผู้บันทึก</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allDataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="analyticsContent" class="tab-content hidden slide-down">
+                <div class="glass-effect rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">วิเคราะห์เชิงลึก</h2>
+                        <p class="text-white/70">การวิเคราะห์ข้อมูลการขาย</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label for="analyticsStartDate" class="block text-sm font-semibold text-white mb-2">วันที่เริ่มต้น</label>
+                            <input type="date" id="analyticsStartDate" name="analyticsStartDate" class="search-input">
+                        </div>
+                        <div>
+                            <label for="analyticsEndDate" class="block text-sm font-semibold text-white mb-2">วันที่สิ้นสุด</label>
+                            <input type="date" id="analyticsEndDate" name="analyticsEndDate" class="search-input">
+                        </div>
+                    </div>
+                    <div class="flex justify-end mb-8">
+                        <button id="clearAnalyticsDates" class="bg-white/10 text-white font-bold py-2 px-4 rounded-xl hover:bg-white/20 transition-colors duration-300">
+                            <i class="fas fa-eraser mr-2"></i>ล้างค่าปฏิทิน
+                        </button>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white/10 rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-white mb-4">ยอดขายเฉลี่ยรายวัน</h3>
+                            <p class="text-3xl font-bold text-yellow-300" id="dailyAverageSales">฿0.00</p>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-white mb-4">Top 5 ผลิตภัณฑ์</h3>
+                            <div class="overflow-x-auto">
+                                <table class="data-table w-full text-sm text-left text-white/80">
+                                    <thead class="bg-white/10 text-white/90 uppercase text-xs">
+                                        <tr>
+                                            <th class="py-3 px-4">ผลิตภัณฑ์</th>
+                                            <th class="py-3 px-4">ยอดขาย (รายการ)</th>
+                                            <th class="py-3 px-4">มูลค่า (บาท)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topProductsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-white mb-4">Top 5 พนักงาน</h3>
+                            <div class="overflow-x-auto">
+                                <table class="data-table w-full text-sm text-left text-white/80">
+                                    <thead class="bg-white/10 text-white/90 uppercase text-xs">
+                                        <tr>
+                                            <th class="py-3 px-4">พนักงาน</th>
+                                            <th class="py-3 px-4">ยอดขาย (รายการ)</th>
+                                            <th class="py-3 px-4">มูลค่า (บาท)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topEmployeesTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="adminContent" class="tab-content hidden slide-down">
+                <div class="glass-effect rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">จัดการข้อมูล</h2>
+                        <p class="text-white/70">เพิ่ม ลบ และแก้ไขข้อมูลหลักของระบบ</p>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="glass-effect p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-white mb-4">จัดการพนักงาน</h3>
+                            <div class="flex space-x-2 mb-4">
+                                <input type="text" id="newEmployeeName" class="search-input flex-grow" placeholder="เพิ่มชื่อพนักงานใหม่">
+                                <button onclick="addEmployee()" class="btn-gradient text-white px-4 rounded-xl shadow-lg"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <ul id="employeeList" class="space-y-2 text-white/90 max-h-48 overflow-y-auto">
+                            </ul>
+                        </div>
+                        <div class="glass-effect p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-white mb-4">จัดการผลิตภัณฑ์</h3>
+                            <div class="flex space-x-2 mb-4">
+                                <input type="text" id="newProductName" class="search-input flex-grow" placeholder="เพิ่มผลิตภัณฑ์ใหม่">
+                                <button onclick="addProduct()" class="btn-gradient text-white px-4 rounded-xl shadow-lg"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <ul id="productList" class="space-y-2 text-white/90 max-h-48 overflow-y-auto">
+                            </ul>
+                        </div>
+                        <div class="glass-effect p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-white mb-4">จัดการผู้บันทึก</h3>
+                            <div class="flex space-x-2 mb-4">
+                                <input type="text" id="newRecorderName" class="search-input flex-grow" placeholder="เพิ่มชื่อผู้บันทึกใหม่">
+                                <button onclick="addRecorder()" class="btn-gradient text-white px-4 rounded-xl shadow-lg"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <ul id="recorderList" class="space-y-2 text-white/90 max-h-48 overflow-y-auto">
+                            </ul>
+                        </div>
+                        <div class="glass-effect p-6 rounded-2xl col-span-1 lg:col-span-3">
+                            <h3 class="text-xl font-bold text-white mb-4">จัดการส่วนลดผลิตภัณฑ์</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="discountProductName" class="block text-sm font-semibold text-white mb-2">ผลิตภัณฑ์</label>
+                                    <input type="text" id="discountProductName" class="search-input w-full" placeholder="ค้นหาและเลือกผลิตภัณฑ์">
+                                    <div id="discountProductDropdown" class="dropdown-list"></div>
+                                </div>
+                                <div>
+                                    <label for="discountValue" class="block text-sm font-semibold text-white mb-2">มูลค่าส่วนลด (%)</label>
+                                    <input type="number" step="0.01" id="discountValue" class="search-input w-full" placeholder="กรอกส่วนลดเป็น % (เช่น 10)">
+                                </div>
+                                <button onclick="setProductDiscount()" class="btn-gradient w-full text-white font-bold py-3 px-6 rounded-xl shadow-lg">
+                                    ตั้งค่าส่วนลด
+                                </button>
+                            </div>
+                            <ul id="productDiscountList" class="space-y-2 text-white/90 mt-4 max-h-48 overflow-y-auto">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+        // Firebase configuration (re-initialize as per new structure)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWMkD0wDnjvSyNWiTj2L_6tvKMsuaT5xM",
+            authDomain: "goalify-a38a1.firebaseapp.com",
+            projectId: "goalify-a38a1",
+            storageBucket: "goalify-a38a1.firebasestorage.app",
+            messagingSenderId: "141880735807",
+            appId: "1:141880735807:web:f635cf86164ec90fbe608a",
+            measurementId: "G-VPGV2M45L9"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- Data that is now embedded directly in the code ---
+        let employees = [
+            "กุลนาถ เทียนฟัก", "ธาดา เทียนแดง", "ภัทรภร นพวิบูลย์", "ณัฐพร อินทับทิม", "ปราณี หวังเอื้ออัตตชน",
+            "เบญจวรรณ ธุงศรี", "ชลันดา จังติยานนท์", "รัตนา อ่อนละมูล", "ณัฐภูมิ เกินการ", "กนกอร นุ่มน้อย",
+            "กิติคุณ ตั้งเจริญไพศาล", "วนัสวีร์ กล่าวกระโทก", "อภิเดช บุญนา", "ขวัญชนก สาสิงห์"
+        ];
+        let products = [
+            "มอบรัก", "ธ.ก.ส.รักคุณ", "เพิ่มรัก", "HUG", "ทวีรัก", "กองทุนทวีสุข", "ATM", "SMS_Alert",
+            "ประกันนอก", "ค่าวิเคราะห์โครงการ", "ค่าตรวจที่ดิน", "ค่าธรรมเนียมนิติกรรมจำนอง",
+            "ค่าธรรมเนียมบริการสินเชื่อ", "อื่นๆ"
+        ];
+        let recorders = [
+            "กุลนาถ เทียนฟัก", "ณัฐพร อินทับทิม", "เบญจวรรณ ธุงศรี", "รัตนา อ่อนละมูล"
+        ];
+        let productDiscounts = {
+            "มอบรัก": 0, "ธ.ก.ส.รักคุณ": 0, "เพิ่มรัก": 0, "HUG": 0, "ทวีรัก": 0, "กองทุนทวีสุข": 0,
+            "ATM": 0, "SMS_Alert": 0, "ประกันนอก": 0, "ค่าวิเคราะห์โครงการ": 0, "ค่าตรวจที่ดิน": 0,
+            "ค่าธรรมเนียมนิติกรรมจำนอง": 0, "ค่าธรรมเนียมบริการสินเชื่อ": 0, "อื่นๆ": 0
+        };
+        let allData = [];
+
+        const chartColors = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#6b7280'];
+
+        // --- Data Loading & Setup ---
+        async function loadData() {
+            try {
+                const snapshot = await db.collection("Goalify").orderBy("วันที่บันทึก", "desc").get();
+                allData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAllData();
+                renderDashboard();
+                renderAnalytics();
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        }
+
+        // --- Tab Management ---
+        function showTab(tabId) {
+            const tabs = ['form', 'dashboard', 'search', 'alldata', 'analytics', 'admin'];
+            tabs.forEach(tab => {
+                document.getElementById(`${tab}Content`).classList.add('hidden');
+                document.getElementById(`${tab}Tab`).classList.remove('active');
+            });
+            document.getElementById(`${tabId}Content`).classList.remove('hidden');
+            document.getElementById(`${tabId}Tab`).classList.add('active');
+            
+            if (tabId === 'admin') {
+                renderAdminLists();
+            } else if (tabId === 'dashboard') {
+                renderDashboard();
+            } else if (tabId === 'alldata') {
+                renderAllData();
+            } else if (tabId === 'analytics') {
+                renderAnalytics();
+            }
+        }
+
+        // --- Dropdown Logic ---
+        function setupDropdowns() {
+            const inputs = [
+                { id: 'employeeName', list: employees, dropdownId: 'employeeDropdown' },
+                { id: 'productName', list: products, dropdownId: 'productDropdown' },
+                { id: 'recorderName', list: recorders, dropdownId: 'recorderDropdown' },
+                { id: 'dashboardEmployee', list: employees, dropdownId: 'dashboardEmployeeDropdown' },
+                { id: 'dashboardProduct', list: products, dropdownId: 'dashboardProductDropdown' },
+                { id: 'searchEmployeeName', list: employees, dropdownId: 'searchEmployeeDropdown' },
+                { id: 'searchProductName', list: products, dropdownId: 'searchProductDropdown' },
+                { id: 'discountProductName', list: products, dropdownId: 'discountProductDropdown' }
+            ];
+
+            inputs.forEach(input => {
+                const inputElement = document.getElementById(input.id);
+                const dropdownElement = document.getElementById(input.dropdownId);
+                
+                if (!inputElement || !dropdownElement) return;
+
+                const renderDropdown = (items) => {
+                    dropdownElement.innerHTML = '';
+                    if (items.length > 0) {
+                        items.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'dropdown-item';
+                            div.textContent = item;
+                            div.onmousedown = (e) => { // Use mousedown to prevent blur
+                                e.preventDefault();
+                                inputElement.value = item;
+                                dropdownElement.style.display = 'none';
+                                if (input.id === 'productName') {
+                                    updateNetValue();
+                                }
+                                if (input.id === 'dashboardEmployee' || input.id === 'dashboardProduct') {
+                                    renderDashboard();
+                                }
+                            };
+                            dropdownElement.appendChild(div);
+                        });
+                        dropdownElement.style.display = 'block';
+                    } else {
+                        dropdownElement.style.display = 'none';
+                    }
+                };
+
+                inputElement.onfocus = () => renderDropdown(input.list);
+                inputElement.oninput = () => {
+                    const filter = inputElement.value.toLowerCase();
+                    const filteredItems = input.list.filter(item => item.toLowerCase().includes(filter));
+                    renderDropdown(filteredItems);
+                };
+                inputElement.onblur = (e) => {
+                    setTimeout(() => {
+                        if (!dropdownElement.contains(document.activeElement)) {
+                            dropdownElement.style.display = 'none';
+                        }
+                    }, 100);
+                };
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            setupDropdowns();
+            showTab('form');
+
+            // Add event listeners for the new date inputs
+            document.getElementById('dashboardStartDate').addEventListener('change', renderDashboard);
+            document.getElementById('dashboardEndDate').addEventListener('change', renderDashboard);
+            document.getElementById('analyticsStartDate').addEventListener('change', renderAnalytics);
+            document.getElementById('analyticsEndDate').addEventListener('change', renderAnalytics);
+            document.getElementById('dashboardEmployee').addEventListener('input', renderDashboard);
+            document.getElementById('dashboardProduct').addEventListener('input', renderDashboard);
+            document.getElementById('clearAnalyticsDates').addEventListener('click', clearAnalyticsDates);
+        });
+
+        // --- Form Handling ---
+        const dataForm = document.getElementById('dataForm');
+        const statusMessage = document.getElementById('statusMessage');
+
+        dataForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(dataForm);
+            const data = {
+                'ชื่อพนักงาน': formData.get('employeeName'),
+                'ผลิตภัณฑ์': formData.get('productName'),
+                'จำนวน': parseInt(formData.get('quantity')),
+                'มูลค่าเต็ม': parseFloat(formData.get('fullValue')),
+                'มูลค่าสุทธิ': parseFloat(document.getElementById('netValue').value),
+                'หมายเหตุ': formData.get('note'),
+                'ผู้บันทึก': formData.get('recorderName'),
+                'วันที่บันทึก': new Date()
+            };
+
+            try {
+                await db.collection("Goalify").add(data);
+                statusMessage.textContent = 'บันทึกข้อมูลเรียบร้อยแล้ว!';
+                statusMessage.className = 'mt-6 text-center text-sm font-semibold text-green-400 slide-down';
+                statusMessage.style.display = 'block';
+                dataForm.reset();
+                updateNetValue();
+                loadData();
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                statusMessage.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+                statusMessage.className = 'mt-6 text-center text-sm font-semibold text-red-400 slide-down';
+                statusMessage.style.display = 'block';
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            dataForm.reset();
+            statusMessage.style.display = 'none';
+            updateNetValue();
+        });
+
+        // --- Net Value Calculation ---
+        function updateNetValue() {
+            const fullValueInput = document.getElementById('fullValue');
+            const productNameInput = document.getElementById('productName');
+            const netValueInput = document.getElementById('netValue');
+
+            const fullValue = parseFloat(fullValueInput.value);
+            const productName = productNameInput.value;
+            const discount = productDiscounts[productName] || 0;
+
+            if (!isNaN(fullValue) && fullValue >= 0) {
+                const netValue = fullValue * (1 - discount / 100);
+                netValueInput.value = netValue.toFixed(2);
+            } else {
+                netValueInput.value = '';
+            }
+        }
+
+        document.getElementById('fullValue').addEventListener('input', updateNetValue);
+        document.getElementById('productName').addEventListener('input', updateNetValue);
+
+        // --- Admin Tab Logic ---
+        function renderAdminLists() {
+            const employeeList = document.getElementById('employeeList');
+            const productList = document.getElementById('productList');
+            const recorderList = document.getElementById('recorderList');
+            const productDiscountList = document.getElementById('productDiscountList');
+            
+            employeeList.innerHTML = '';
+            employees.forEach(emp => {
+                employeeList.innerHTML += `
+                    <li class="flex justify-between items-center bg-white/10 p-2 rounded">
+                        <span>${emp}</span>
+                        <button onclick="removeEmployee('${emp}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </li>
+                `;
+            });
+
+            productList.innerHTML = '';
+            products.forEach(prod => {
+                productList.innerHTML += `
+                    <li class="flex justify-between items-center bg-white/10 p-2 rounded">
+                        <span>${prod}</span>
+                        <button onclick="removeProduct('${prod}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </li>
+                `;
+            });
+
+            recorderList.innerHTML = '';
+            recorders.forEach(rec => {
+                recorderList.innerHTML += `
+                    <li class="flex justify-between items-center bg-white/10 p-2 rounded">
+                        <span>${rec}</span>
+                        <button onclick="removeRecorder('${rec}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </li>
+                `;
+            });
+
+            productDiscountList.innerHTML = '';
+            for (const prod in productDiscounts) {
+                productDiscountList.innerHTML += `
+                    <li class="flex justify-between items-center bg-white/10 p-2 rounded">
+                        <span>${prod}: ${productDiscounts[prod]}%</span>
+                        <button onclick="editProductDiscount('${prod}')" class="text-yellow-400 hover:text-yellow-500 mr-2"><i class="fas fa-edit"></i></button>
+                        <button onclick="removeProductDiscount('${prod}')" class="text-red-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </li>
+                `;
+            }
+        }
+
+        function addEmployee() {
+            const name = document.getElementById('newEmployeeName').value.trim();
+            if (name && !employees.includes(name)) {
+                employees.push(name);
+                document.getElementById('newEmployeeName').value = '';
+                renderAdminLists();
+                setupDropdowns();
+            }
+        }
+
+        function removeEmployee(name) {
+            employees = employees.filter(emp => emp !== name);
+            renderAdminLists();
+            setupDropdowns();
+        }
+
+        function addProduct() {
+            const name = document.getElementById('newProductName').value.trim();
+            if (name && !products.includes(name)) {
+                products.push(name);
+                document.getElementById('newProductName').value = '';
+                renderAdminLists();
+                setupDropdowns();
+            }
+        }
+
+        function removeProduct(name) {
+            products = products.filter(prod => prod !== name);
+            // also remove from productDiscounts if it exists
+            if (productDiscounts[name]) {
+                delete productDiscounts[name];
+            }
+            renderAdminLists();
+            setupDropdowns();
+        }
+        
+        function addRecorder() {
+            const name = document.getElementById('newRecorderName').value.trim();
+            if (name && !recorders.includes(name)) {
+                recorders.push(name);
+                document.getElementById('newRecorderName').value = '';
+                renderAdminLists();
+                setupDropdowns();
+            }
+        }
+
+        function removeRecorder(name) {
+            recorders = recorders.filter(rec => rec !== name);
+            renderAdminLists();
+            setupDropdowns();
+        }
+
+        function setProductDiscount() {
+            const productName = document.getElementById('discountProductName').value.trim();
+            const discountValue = parseFloat(document.getElementById('discountValue').value);
+
+            if (productName && !isNaN(discountValue)) {
+                productDiscounts[productName] = discountValue;
+                document.getElementById('discountProductName').value = '';
+                document.getElementById('discountValue').value = '';
+                renderAdminLists();
+                setupDropdowns();
+                updateNetValue();
+            }
+        }
+
+        function editProductDiscount(name) {
+            const current = productDiscounts[name];
+            const newDiscount = prompt(`แก้ไขส่วนลดสำหรับ ${name} (%)`, current);
+            if (newDiscount !== null && !isNaN(parseFloat(newDiscount))) {
+                productDiscounts[name] = parseFloat(newDiscount);
+                renderAdminLists();
+                updateNetValue();
+            }
+        }
+
+        function removeProductDiscount(name) {
+            delete productDiscounts[name];
+            renderAdminLists();
+            setupDropdowns();
+        }
+
+        // --- Search Tab Logic ---
+        function searchData() {
+            const searchEmployeeName = document.getElementById('searchEmployeeName').value.trim();
+            const searchProductName = document.getElementById('searchProductName').value.trim();
+            const searchDate = document.getElementById('searchDate').value;
+            const searchResultsContainer = document.getElementById('searchResultsContainer');
+            const searchResultsTableBody = document.getElementById('searchResultsTableBody');
+
+            let filteredSearchData = allData.filter(data => {
+                const matchesEmployee = searchEmployeeName ? data['ชื่อพนักงาน'] === searchEmployeeName : true;
+                const matchesProduct = searchProductName ? data['ผลิตภัณฑ์'] === searchProductName : true;
+                const matchesDate = searchDate ? data['วันที่บันทึก'] && data['วันที่บันทึก'].toDate().toISOString().substring(0, 10) === searchDate : true;
+                return matchesEmployee && matchesProduct && matchesDate;
+            });
+
+            searchResultsTableBody.innerHTML = '';
+            if (filteredSearchData.length > 0) {
+                searchResultsContainer.style.display = 'block';
+                filteredSearchData.forEach(data => {
+                    const row = `
+                        <tr>
+                            <td class="py-3 px-4">${data['วันที่บันทึก'] ? data['วันที่บันทึก'].toDate().toLocaleString('th-TH') : '-'}</td>
+                            <td class="py-3 px-4">${data['ชื่อพนักงาน'] || '-'}</td>
+                            <td class="py-3 px-4">${data['ผลิตภัณฑ์'] || '-'}</td>
+                            <td class="py-3 px-4">${data['จำนวน'] || 0}</td>
+                            <td class="py-3 px-4">${(data['มูลค่าสุทธิ'] || 0).toFixed(2)}</td>
+                            <td class="py-3 px-4">${data['หมายเหตุ'] || '-'}</td>
+                            <td class="py-3 px-4">${data['ผู้บันทึก'] || '-'}</td>
+                        </tr>
+                    `;
+                    searchResultsTableBody.innerHTML += row;
+                });
+            } else {
+                searchResultsContainer.style.display = 'none';
+                alert('ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา');
+            }
+        }
+
+        // --- All Data Tab Logic ---
+        function renderAllData() {
+            const allDataTableBody = document.getElementById('allDataTableBody');
+            allDataTableBody.innerHTML = '';
+
+            allData.forEach(data => {
+                const row = `
+                    <tr>
+                        <td class="py-3 px-4">${data['วันที่บันทึก'] ? data['วันที่บันทึก'].toDate().toLocaleString('th-TH') : '-'}</td>
+                        <td class="py-3 px-4">${data['ชื่อพนักงาน'] || '-'}</td>
+                        <td class="py-3 px-4">${data['ผลิตภัณฑ์'] || '-'}</td>
+                        <td class="py-3 px-4">${data['จำนวน'] || 0}</td>
+                        <td class="py-3 px-4">${(data['มูลค่าสุทธิ'] || 0).toFixed(2)}</td>
+                        <td class="py-3 px-4">${data['หมายเหตุ'] || '-'}</td>
+                        <td class="py-3 px-4">${data['ผู้บันทึก'] || '-'}</td>
+                    </tr>
+                `;
+                allDataTableBody.innerHTML += row;
+            });
+        }
+        
+        // --- Dashboard & Analytics Logic ---
+        let salesChartInstance = null;
+        let productChartInstance = null;
+
+        function renderDashboard() {
+            const filteredEmployee = document.getElementById('dashboardEmployee').value.trim();
+            const filteredProduct = document.getElementById('dashboardProduct').value.trim();
+            const startDate = document.getElementById('dashboardStartDate').value;
+            const endDate = document.getElementById('dashboardEndDate').value;
+
+            let filteredData = allData;
+            if (filteredEmployee) {
+                filteredData = filteredData.filter(d => d['ชื่อพนักงาน'] === filteredEmployee);
+            }
+            if (filteredProduct) {
+                filteredData = filteredData.filter(d => d['ผลิตภัณฑ์'] === filteredProduct);
+            }
+            if (startDate) {
+                const startTimestamp = new Date(startDate);
+                filteredData = filteredData.filter(d => d['วันที่บันทึก'] && d['วันที่บันทึก'].toDate() >= startTimestamp);
+            }
+            if (endDate) {
+                const endTimestamp = new Date(endDate);
+                endTimestamp.setHours(23, 59, 59, 999);
+                filteredData = filteredData.filter(d => d['วันที่บันทึก'] && d['วันที่บันทึก'].toDate() <= endTimestamp);
+            }
+
+
+            const employeeSales = filteredData.reduce((acc, curr) => {
+                acc[curr['ชื่อพนักงาน']] = (acc[curr['ชื่อพนักงาน']] || 0) + (curr['มูลค่าสุทธิ'] || 0);
+                return acc;
+            }, {});
+
+            const productSales = filteredData.reduce((acc, curr) => {
+                acc[curr['ผลิตภัณฑ์']] = (acc[curr['ผลิตภัณฑ์']] || 0) + (curr['มูลค่าสุทธิ'] || 0);
+                return acc;
+            }, {});
+
+            const totalSalesCount = filteredData.length;
+            const totalQuantity = filteredData.reduce((acc, curr) => acc + (curr['จำนวน'] || 0), 0);
+            const totalNetValue = filteredData.reduce((acc, curr) => acc + (curr['มูลค่าสุทธิ'] || 0), 0);
+            const averageSales = totalSalesCount > 0 ? totalNetValue / totalSalesCount : 0;
+
+            document.getElementById('totalSalesCount').textContent = totalSalesCount;
+            document.getElementById('totalQuantity').textContent = totalQuantity;
+            document.getElementById('totalNetValue').textContent = `฿${totalNetValue.toFixed(2)}`;
+            document.getElementById('averageSales').textContent = `฿${averageSales.toFixed(2)}`;
+
+            renderChart('salesChart', 'bar', Object.keys(employeeSales), Object.values(employeeSales), 'ยอดขาย (บาท)');
+            renderChart('productChart', 'bar', Object.keys(productSales), Object.values(productSales), 'ยอดขาย (บาท)');
+        }
+
+        function renderChart(canvasId, type, labels, data, label) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const existingChart = Chart.getChart(canvasId);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            const chartData = {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: chartColors,
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    hoverBackgroundColor: chartColors.map(color => color + 'E6'),
+                }]
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.8)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            };
+            
+            if (canvasId === 'salesChart') {
+                salesChartInstance = new Chart(ctx, { type, data: chartData, options: chartOptions });
+            } else if (canvasId === 'productChart') {
+                productChartInstance = new Chart(ctx, { type, data: chartData, options: chartOptions });
+            }
+        }
+
+        function renderAnalytics() {
+            const startDate = document.getElementById('analyticsStartDate').value;
+            const endDate = document.getElementById('analyticsEndDate').value;
+
+            let filteredData = allData;
+            if (startDate) {
+                const startTimestamp = new Date(startDate);
+                filteredData = filteredData.filter(d => d['วันที่บันทึก'] && d['วันที่บันทึก'].toDate() >= startTimestamp);
+            }
+            if (endDate) {
+                const endTimestamp = new Date(endDate);
+                endTimestamp.setHours(23, 59, 59, 999);
+                filteredData = filteredData.filter(d => d['วันที่บันทึก'] && d['วันที่บันทึก'].toDate() <= endTimestamp);
+            }
+
+            const salesByDate = filteredData.reduce((acc, curr) => {
+                const date = curr['วันที่บันทึก'] ? curr['วันที่บันทึก'].toDate().toDateString() : 'Unknown';
+                acc[date] = (acc[date] || 0) + (curr['มูลค่าสุทธิ'] || 0);
+                return acc;
+            }, {});
+
+            const totalDays = Object.keys(salesByDate).length;
+            const totalSalesValue = filteredData.reduce((acc, curr) => acc + (curr['มูลค่าสุทธิ'] || 0), 0);
+            const dailyAverage = totalDays > 0 ? totalSalesValue / totalDays : 0;
+            document.getElementById('dailyAverageSales').textContent = `฿${dailyAverage.toFixed(2)}`;
+
+            const productSalesCount = {};
+            const productSalesValue = {};
+            filteredData.forEach(item => {
+                const prod = item['ผลิตภัณฑ์'];
+                productSalesCount[prod] = (productSalesCount[prod] || 0) + 1;
+                productSalesValue[prod] = (productSalesValue[prod] || 0) + (item['มูลค่าสุทธิ'] || 0);
+            });
+            const topProducts = Object.keys(productSalesCount)
+                .map(prod => ({ name: prod, count: productSalesCount[prod], value: productSalesValue[prod] }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 5);
+            renderTable('topProductsTableBody', topProducts, ['name', 'count', 'value']);
+
+            const employeeSalesCount = {};
+            const employeeSalesValue = {};
+            filteredData.forEach(item => {
+                const emp = item['ชื่อพนักงาน'];
+                employeeSalesCount[emp] = (employeeSalesCount[emp] || 0) + 1;
+                employeeSalesValue[emp] = (employeeSalesValue[emp] || 0) + (item['มูลค่าสุทธิ'] || 0);
+            });
+            const topEmployees = Object.keys(employeeSalesCount)
+                .map(emp => ({ name: emp, count: employeeSalesCount[emp], value: employeeSalesValue[emp] }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 5);
+            renderTable('topEmployeesTableBody', topEmployees, ['name', 'count', 'value']);
+        }
+
+        function renderTable(tableId, data, keys) {
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                keys.forEach(key => {
+                    const cell = document.createElement('td');
+                    cell.className = 'py-3 px-4';
+                    if (key === 'value') {
+                        cell.textContent = `฿${item[key].toFixed(2)}`;
+                    } else {
+                        cell.textContent = item[key];
+                    }
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // --- Export to Excel ---
+        function exportToExcel() {
+            if (allData.length === 0) {
+                alert("ไม่มีข้อมูลที่จะส่งออก");
+                return;
+            }
+
+            const dataToExport = allData.map(d => ({
+                'วันที่บันทึก': d['วันที่บันทึก'] ? d['วันที่บันทึก'].toDate().toLocaleString('th-TH') : '',
+                'ชื่อพนักงาน': d['ชื่อพนักงาน'] || '',
+                'ผลิตภัณฑ์': d['ผลิตภัณฑ์'] || '',
+                'จำนวน': d['จำนวน'] || 0,
+                'มูลค่าสุทธิ': d['มูลค่าสุทธิ'] || 0,
+                'หมายเหตุ': d['หมายเหตุ'] || '',
+                'ผู้บันทึก': d['ผู้บันทึก'] || ''
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "ข้อมูลการขาย");
+
+            XLSX.writeFile(workbook, "Goalify_Data.xlsx");
+        }
+    
+        function confirmDelete(id) {
+            if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?")) {
+                db.collection("Goalify").doc(id).delete().then(() => {
+                    alert("ลบข้อมูลเรียบร้อยแล้ว");
+                    loadData();
+                }).catch((error) => {
+                    console.error("เกิดข้อผิดพลาดในการลบข้อมูล: ", error);
+                    alert("เกิดข้อผิดพลาดในการลบข้อมูล");
+                });
+            }
+        }
+
+        function clearAnalyticsDates() {
+            document.getElementById('analyticsStartDate').value = '';
+            document.getElementById('analyticsEndDate').value = '';
+            renderAnalytics();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</body>
+</html>
